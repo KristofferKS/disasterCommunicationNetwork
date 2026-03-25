@@ -8,7 +8,7 @@
         "I_cs": 11.0,
         "I_idle": 1.6,
         "I_base": 5.0,
-        "viable": true
+        "viable": false
     },
     "DECT NR+": {
         "R_raw": 3456000.0,
@@ -30,7 +30,7 @@
         "I_cs": 46.0,
         "I_idle": 6.0,
         "I_base": 5.0,
-        "viable": true
+        "viable": false
     },
     "HaLow": {
         "R_raw": 86700000.0,
@@ -44,7 +44,7 @@
         "viable": true
     },
     "SomeCoolShit+": {
-        "R_raw": 3456000.0,
+        "R_raw": 345600.0,
         "eta": 0.70,
         "Vcc": 3.3,
         "I_tx": 80.0,
