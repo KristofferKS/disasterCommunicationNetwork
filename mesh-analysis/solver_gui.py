@@ -62,7 +62,13 @@ class SolverApp(tk.Tk):
         self._sweep_combo      = None
         self._y_combo          = None
 
+        self.protocol("WM_DELETE_WINDOW", self._on_close)
+
         self._build_ui()
+
+    def _on_close(self):
+        plt.close("all")
+        self.destroy()
 
     # ─── UI ──────────────────────────────────
 
