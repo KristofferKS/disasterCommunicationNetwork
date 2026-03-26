@@ -13,9 +13,10 @@ from power_model import PowerModelVisualizer
 def load_tech_and_param():
     
     _current_dir = path.dirname(path.abspath(__file__))
-    files = ['technologies.json', 'parameters.json']
+    _dir = _current_dir.split("/")[-1] + "/parameters"
+    files = ['technologies.json', 'scenario_parameters.json']
     for i in range(2):
-        _tech_file_path = path.join(_current_dir, files[i])
+        _tech_file_path = path.join(_dir,files[i])
         with open(_tech_file_path, 'r') as f:
             if i == 0:
                 TECHNOLOGIES = load(f)          # Technology specific parameters [dictionary of dictionaries, one per technology]
