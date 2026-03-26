@@ -42,14 +42,16 @@ class PowerModel:
 # class for visualizing output of power model, e.g. plotting T_life vs lambda_m for different technologies, or T_life vs cluster size for different technologies
 class PowerModelVisualizer(PowerModel):
 
-    def plot(self, x_values, y_var, xlabel, ylabel, title):
+    def plot(self, x_values):
         import matplotlib.pyplot as plt
+        x_var_name, y_var, title, xlabel, ylabel = self.info[1:6]
+
         plt.figure(figsize=(10, 6))
         for tech, data in self.results.items():
             if y_var in data and len(data[y_var]) == len(x_values):
                 plt.plot(x_values, data[y_var], label=tech)
         
-        if xlabel == "lambda_m":
+        if x_var_name == "lambda_m":
             from matplotlib.ticker import LogFormatterMathtext, LogLocator
             plt.xscale("log", base=10)
             axis = plt.gca().xaxis
@@ -66,8 +68,10 @@ class PowerModelVisualizer(PowerModel):
 
         self.return_to_base() # reset parameters after plotting
 
-    def modellerXvY(self, x_values, x_var_name, y_var, ylabel, title):
+    def modellerXvY(self, info):
         """Plot T_life vs lambda_m for different technologies"""
+        self.info = info
+        x_values, x_var_name, y_var = info[0:3]
         self.x_values = x_values
 
         self.results = {}
@@ -86,4 +90,4 @@ class PowerModelVisualizer(PowerModel):
                 else:
                     self.results[key][y_var].append(None)
 
-        self.plot(self.x_values, y_var=y_var, xlabel=x_var_name, ylabel=ylabel, title=title)
+        self.plot(self.x_values)
