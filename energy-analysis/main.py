@@ -2,8 +2,7 @@
 Power model for node in cluster, based on duty cycles and power consumption of different states (Tx, Rx, Idle)
 """
 
-from visualizer import PowerModelVisualizer
-
+from power_model import PowerModelVisualizer
 
 # Helper function to load technology parameters from JSON file
 def load_technologies():
