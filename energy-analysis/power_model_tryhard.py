@@ -4,18 +4,23 @@ Power model for node in cluster, based on duty cycles and power consumption of d
 
 class PowerModel:
     def __init__(self, lambda_m, M, N, tech, C_bat):
-        self.lambda_m = lambda_m
-        self.M = M
-        self.N = N
+        self.lambda_m = self.lambda_m_base = lambda_m
+        self.M = self.M_base = M
+        self.N = self.N_base = N
+        self.C_bat = self.C_bat_base = C_bat
         self.tech = tech
-        self.C_bat = C_bat
+
+    def return_to_base(self):
+        self.lambda_m = self.lambda_m_base
+        self.M = self.M_base
+        self.N = self.N_base
+        self.C_bat = self.C_bat_base
 
     def delta_Tx(self, tech_params):
-        print(type(tech_params))
-        return self.lambda_m * self.M / tech_params["eta"] / tech_params["R_raw"]
+        return self.lambda_m * self.M / (tech_params["eta"] * tech_params["R_raw"])
     
     def delta_Rx(self, tech_params):
-        return (self.N - 1) * self.lambda_m * self.M / tech_params["eta"] / tech_params["R_raw"]
+        return (self.N - 1) * self.lambda_m * self.M / (tech_params["eta"] * tech_params["R_raw"])
     
     def delta_idle(self, tech_params):
         return 1 - self.delta_Tx(tech_params) - self.delta_Rx(tech_params)
@@ -26,7 +31,6 @@ class PowerModel:
         d_idle = self.delta_idle(tech_params)
 
         if d_tx + d_rx >= 1:
-            print(f"duty cycle saturation. this tech is not viable, larger throughput required to meet requirements.")
             return None
 
         I_bar  = (tech_params["I_base"]
@@ -42,11 +46,20 @@ class PowerModel:
 # class for visualizing output of power model, e.g. plotting T_life vs lambda_m for different technologies, or T_life vs cluster size for different technologies
 class PowerModelVisualizer(PowerModel):
 
-    def plot(self, x_values, xlabel, ylabel, title):
+    def plot(self, x_values, y_var, xlabel, ylabel, title):
         plt.figure(figsize=(10, 6))
         for tech, data in self.results.items():
-            if "T_life" in data and len(data["T_life"]) == len(x_values):
-                plt.plot(x_values, data["T_life"], label=tech)
+            if y_var in data and len(data[y_var]) == len(x_values):
+                plt.plot(x_values, data[y_var], label=tech)
+        
+        if xlabel == "lambda_m":
+            from matplotlib.ticker import LogFormatterMathtext, LogLocator
+            plt.xscale("log", base=10)
+            axis = plt.gca().xaxis
+            axis.set_major_locator(LogLocator(base=10))
+            axis.set_major_formatter(LogFormatterMathtext(base=10))
+        
+
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
         plt.title(title)
@@ -54,39 +67,30 @@ class PowerModelVisualizer(PowerModel):
         plt.grid()
         plt.show()
 
-    def plot_T_life_vs_lambda_m(self, lambda_m_values):
+        self.return_to_base() # reset parameters after plotting
+
+    def modellerXvY(self, x_values, x_var_name, y_var, ylabel, title):
         """Plot T_life vs lambda_m for different technologies"""
-        self.lambda_m_values = lambda_m_values
-        
+        self.x_values = x_values
+
         self.results = {}
         for key, value in self.tech.items():
             if value["viable"]:
-                self.results[key] = {"T_life": []}
+                self.results[key] = {y_var: []}
 
-        for lambda_m in self.lambda_m_values:
-            self.lambda_m = lambda_m
+        for x_value in self.x_values:
+            setattr(self, x_var_name, x_value)
             for key, value in self.tech.items():
                 if not value["viable"]:
                     continue
                 pm = self.power_model(value)
                 if pm is not None:
-                    self.results[key]["T_life"].append(pm["T_life"])
+                    self.results[key][y_var].append(pm[y_var])
                 else:
-                    self.results[key]["T_life"].append(None)
-                    
-        self.plot(self.lambda_m_values, xlabel="Message Rate (msg/s)", ylabel="Battery Life (hours)", title="Battery Life vs Message Rate for Different Technologies")
-    
-    def plot_T_life_vs_cluster_size(self):
-        pass
+                    self.results[key][y_var].append(None)
 
-    def plot_T_life_vs_M(self):
-        pass
+        self.plot(self.x_values, y_var=y_var, xlabel=x_var_name, ylabel=ylabel, title=title)
 
-    def plot_T_life_vs_Bat_capacity(self):
-        pass
-
-    def barPlot_cycle(self):
-        pass
 
 # Helper function to load technology parameters from JSON file
 def load_technologies():
@@ -124,17 +128,12 @@ if __name__ == "__main__":
 
     plotter = PowerModelVisualizer(lambda_m, M, N, tech=TECHNOLOGIES, C_bat=C_bat)
 
-    lambda_m_linspace = np.linspace(0.01, 2, 100)
-    plotter.plot_T_life_vs_lambda_m(lambda_m_linspace)
+    lambda_m_linspace = np.linspace(0.001, 3, 10000)
+    M_linspace = np.linspace(10, 10000, 1000)
+    N_linspace = np.linspace(1, 300, 1000)
+    C_bat_linspace = np.linspace(100, 4000, 1000)
 
-    """
-    results = {}
-    for tech_name, tech_params in TECHNOLOGIES.items():
-        if not tech_params["viable"]:
-            print(f"{tech_name} is not viable:")
-            continue
-
-        model = PowerModel(lambda_m, M, N, tech=tech_params, C_bat=C_bat)
-        results[tech_name] = model.power_model()
-        print(f"{tech_name}: {results[tech_name]}\n")
-    """
+    plotter.modellerXvY(lambda_m_linspace, "lambda_m", y_var="T_life", ylabel="Battery Life (hours)", title="Battery Life vs Message Rate for Different Technologies")
+    plotter.modellerXvY(M_linspace, "M", y_var="T_life", ylabel="Battery Life (hours)", title="Battery Life vs Message Size for Different Technologies")
+    plotter.modellerXvY(N_linspace, "N", y_var="T_life", ylabel="Battery Life (hours)", title="Battery Life vs Cluster Size for Different Technologies")
+    plotter.modellerXvY(C_bat_linspace, "C_bat", y_var="T_life", ylabel="Battery Life (hours)", title="Battery Life vs Battery Capacity for Different Technologies")

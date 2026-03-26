@@ -1,18 +1,18 @@
 {
     "LoRa": {
         "R_raw": 27000.0,
-        "eta": 0.50,
+        "eta": 0.85,
         "Vcc": 3.3,
         "I_tx": 44.0,
         "I_rx": 11.0,
         "I_cs": 11.0,
         "I_idle": 1.6,
         "I_base": 5.0,
-        "viable": false
+        "viable": true
     },
     "DECT NR+": {
         "R_raw": 3456000.0,
-        "eta": 0.70,
+        "eta": 0.80,
         "Vcc": 3.3,
         "I_tx": 80.0,
         "I_rx": 35.0,
@@ -23,14 +23,14 @@
     },
     "NB-IoT": {
         "R_raw": 127000.0,
-        "eta": 0.60,
+        "eta": 0.80,
         "Vcc": 3.8,
         "I_tx": 220.0,
         "I_rx": 46.0,
         "I_cs": 46.0,
         "I_idle": 6.0,
         "I_base": 5.0,
-        "viable": false
+        "viable": true
     },
     "HaLow": {
         "R_raw": 86700000.0,
