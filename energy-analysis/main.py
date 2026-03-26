@@ -1,5 +1,10 @@
 """
 Power model for node in cluster, based on duty cycles and power consumption of different states (Tx, Rx, Idle)
+
+How to use:
+1. Define parameters of technologies in technologies.json
+2. Define scenario parameters in parameters.json
+3. Run this script to generate plots of battery life vs message rate, message size, cluster size, and battery capacity for different technologies
 """
 
 from power_model import PowerModelVisualizer
