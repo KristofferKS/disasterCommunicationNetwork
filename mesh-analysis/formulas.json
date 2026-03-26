@@ -1,0 +1,39 @@
+{
+  "formulas": [
+    {
+      "target": "delta_Tx",
+      "inputs": ["lambda_m", "M", "R"],
+      "expr": "lambda_m * M / R"
+    },
+    {
+      "target": "lambda_m",
+      "inputs": ["delta_Tx", "M", "R"],
+      "expr": "delta_Tx * R / M"
+    },
+    {
+      "target": "M",
+      "inputs": ["delta_Tx", "lambda_m", "R"],
+      "expr": "delta_Tx * R / lambda_m"
+    },
+    {
+      "target": "R",
+      "inputs": ["delta_Tx", "lambda_m", "M"],
+      "expr": "delta_Tx * M / lambda_m"
+    },
+    {
+      "target": "R",
+      "inputs": ["mu", "R_max"],
+      "expr": "mu * R_max"
+    },
+    {
+      "target": "mu",
+      "inputs": ["R", "R_max"],
+      "expr": "R / R_max"
+    },
+    {
+      "target": "R_max",
+      "inputs": ["R", "mu"],
+      "expr": "R / mu"
+    }
+  ]
+}

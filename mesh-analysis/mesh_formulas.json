@@ -1,0 +1,109 @@
+{
+    "formulas": [
+        {
+            "target": "BC",
+            "inputs": ["n", "k"],
+            "expr": "n / k"
+        },
+        {
+            "target": "n",
+            "inputs": ["BC", "k"],
+            "expr": "BC * k"
+        },
+        {
+            "target": "k",
+            "inputs": ["n", "BC"],
+            "expr": "n / BC"
+        },
+        {
+            "target": "average_shortest_path_length",
+            "inputs": ["n", "k"],
+            "expr": "math.log(n) / math.log(k)"
+        },
+        {
+            "target": "n",
+            "inputs": ["average_shortest_path_length", "k"],
+            "expr": "math.exp(average_shortest_path_length * math.log(k))"
+        },
+        {
+            "target": "k",
+            "inputs": ["average_shortest_path_length", "n"],
+            "expr": "math.exp(math.log(n) / average_shortest_path_length)"
+        },
+        {
+            "target": "clustering_coefficient",
+            "inputs": ["k", "n"],
+            "expr": "k / n"
+        },
+        {
+            "target": "k",
+            "inputs": ["clustering_coefficient", "n"],
+            "expr": "clustering_coefficient * n"
+        },
+        {
+            "target": "n",
+            "inputs": ["clustering_coefficient", "k"],
+            "expr": "k / clustering_coefficient"
+        },
+        {
+            "target": "critical_degree_threshold",
+            "inputs": ["n"],
+            "expr": "max(1, math.log(n))"
+        },
+        {
+            "target": "failure_tolerance",
+            "inputs": ["k"],
+            "expr": "1 - (1 / (k - 1))"
+        },
+        {
+            "target": "k",
+            "inputs": ["failure_tolerance"],
+            "expr": "1 / (1 - failure_tolerance) + 1"
+        },
+        {
+            "target": "total_data",
+            "inputs": ["lambda_m", "M", "n"],
+            "expr": "lambda_m * M * n"
+        },
+        {
+            "target": "lambda_m",
+            "inputs": ["total_data", "M", "n"],
+            "expr": "total_data / (M * n)"
+        },
+        {
+            "target": "M",
+            "inputs": ["total_data", "lambda_m", "n"],
+            "expr": "total_data / (lambda_m * n)"
+        },
+        {
+            "target": "n",
+            "inputs": ["total_data", "lambda_m", "M"],
+            "expr": "total_data / (lambda_m * M)"
+        },
+        {
+            "target": "minimum_k",
+            "inputs": ["C", "total_data", "n", "R"],
+            "expr": "C * (total_data * n / (2 * R))"
+        },
+        {
+            "target": "C",
+            "inputs": ["minimum_k", "total_data", "n", "R"],
+            "expr": "minimum_k / (total_data * n / (2 * R))"
+        },
+        {
+            "target": "total_data",
+            "inputs": ["minimum_k", "C", "n", "R"],
+            "expr": "(minimum_k / C) * (2 * R / n)"
+        },
+        {
+            "target": "n",
+            "inputs": ["minimum_k", "C", "total_data", "R"],
+            "expr": "(minimum_k / C) * (2 * R / total_data)"
+        },
+        {
+            "target": "R",
+            "inputs": ["minimum_k", "C", "total_data", "n"],
+            "expr": "(minimum_k / C) * (total_data * n / 2)"
+        }
+    ]
+}
