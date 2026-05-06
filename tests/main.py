@@ -22,10 +22,10 @@ if __name__ == '__main__':
     server = iperf3_runner.start_server()
     try:
         test_id = database.insert_test(conn, args)
-        print(f"Test '{args.test_name}' started (id={test_id}), running {args.iterations} iteration(s)...\n")
+        #print(f"Test '{args.test_name}' started (id={test_id}), running {args.iterations} iteration(s)...\n")
 
         for i in range(args.iterations):
-            print(f"  Iteration {i + 1}/{args.iterations}...")
+            #print(f"  Iteration {i + 1}/{args.iterations}...")
             raw = iperf3_runner.run_client(
                 "localhost",
                 extra_args=["-u", "-l", str(args.packet_size), "-n", str(total_bytes)]
@@ -40,15 +40,16 @@ if __name__ == '__main__':
             duration    = end.get("seconds", 0)
 
             database.insert_iteration(conn, test_id, i + 1, throughput, jitter_ms, packet_loss, duration)
-            print(f"    Throughput: {throughput/1e6:.2f} Mbps  Jitter: {jitter_ms:.3f} ms  Loss: {packet_loss:.2f}% Duration: {duration:.2f} s")
+            #print(f"    Throughput: {throughput/1e6:.2f} Mbps  Jitter: {jitter_ms:.3f} ms  Loss: {packet_loss:.2f}% Duration: {duration:.2f} s")
 
         database.insert_averages(conn, test_id)
         avg = database.get_averages(conn, test_id)
-        print(f"\nAverages over {args.iterations} iteration(s):")
-        print(f"  Throughput: {avg['throughput']/1e6:.2f} Mbps")
-        print(f"  Jitter:     {avg['jitter_ms']:.3f} ms")
-        print(f"  Loss:       {avg['packet_loss']:.2f}%")
-        print(f"  Duration:   {avg['duration']:.2f} s")
+
+        #print(f"\nAverages over {args.iterations} iteration(s):")
+        #print(f"  Throughput: {avg['throughput']/1e6:.2f} Mbps")
+        #print(f"  Jitter:     {avg['jitter_ms']:.3f} ms")
+        #print(f"  Loss:       {avg['packet_loss']:.2f}%")
+        #print(f"  Duration:   {avg['duration']:.2f} s")
 
     finally:
         iperf3_runner.stop_server(server)

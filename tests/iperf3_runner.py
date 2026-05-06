@@ -6,13 +6,13 @@ def start_server(port: int = 5201):
     subprocess.run(["sudo", "pkill", "iperf3"], check=False)
     time.sleep(0.5) # Give it a moment to ensure the process is killed
     # Start the iperf3 server in the background
-    proc = subprocess.Popen(["iperf3", "-s", "-p", str(port)])
+    proc = subprocess.Popen(["iperf3", "-s", "-p", str(port)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     time.sleep(1) # Give the server a moment to start
     return proc
 
 def run_client(server_ip, port: int = 5201, extra_args=[]):
-    args = ["iperf3", "-c", server_ip, "-p", str(port), "-J"] + extra_args
-    val = subprocess.check_output(args).decode('utf-8').strip()
+    args = ["iperf3", "-c", server_ip, "-p", str(port), "-J" , "-b", "10G"] + extra_args
+    val = subprocess.check_output(args, stderr=subprocess.DEVNULL).decode('utf-8').strip()
     return val
 
 def stop_server(proc):
