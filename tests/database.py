@@ -19,7 +19,9 @@ def get_conn():
             iteration INTEGER NOT NULL,
             throughput REAL NOT NULL,
             jitter_ms REAL,
-            packet_loss REAL,
+            packet_loss_iperf REAL,
+            packet_loss_ping REAL,
+            rtt_ms REAL,
             duration REAL NOT NULL,
             FOREIGN KEY (test_id) REFERENCES tests(id)
         )
@@ -30,7 +32,9 @@ def get_conn():
             test_id INTEGER NOT NULL UNIQUE,
             throughput REAL NOT NULL,
             jitter_ms REAL,
-            packet_loss REAL,
+            packet_loss_iperf REAL,
+            packet_loss_ping REAL,
+            rtt_ms REAL,
             duration REAL NOT NULL,
             FOREIGN KEY (test_id) REFERENCES tests(id)
         )
@@ -47,20 +51,22 @@ def insert_test(conn, args):
     conn.commit()
     return cursor.lastrowid
 
-def insert_iteration(conn, test_id, iteration, throughput, jitter_ms, packet_loss, duration):
+def insert_iteration(conn, test_id, iteration, throughput, jitter_ms, packet_loss_iperf, packet_loss_ping, rtt_ms, duration):
     conn.execute("""
-        INSERT INTO iterations (test_id, iteration, throughput, jitter_ms, packet_loss, duration)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (test_id, iteration, throughput, jitter_ms, packet_loss, duration))
+        INSERT INTO iterations (test_id, iteration, throughput, jitter_ms, packet_loss_iperf, packet_loss_ping, rtt_ms, duration)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (test_id, iteration, throughput, jitter_ms, packet_loss_iperf, packet_loss_ping, rtt_ms, duration))
     conn.commit()
 
 def insert_averages(conn, test_id):
     conn.execute("""
-        INSERT OR REPLACE INTO averages (test_id, throughput, jitter_ms, packet_loss, duration)
+        INSERT OR REPLACE INTO averages (test_id, throughput, jitter_ms, packet_loss_iperf, packet_loss_ping, rtt_ms, duration)
         SELECT test_id,
                AVG(throughput),
                AVG(jitter_ms),
-               AVG(packet_loss),
+               AVG(packet_loss_iperf),
+               AVG(packet_loss_ping),
+               AVG(rtt_ms),
                AVG(duration)
         FROM iterations
         WHERE test_id = ?
@@ -70,6 +76,6 @@ def insert_averages(conn, test_id):
 
 def get_averages(conn, test_id):
     row = conn.execute("""
-        SELECT throughput, jitter_ms, packet_loss, duration FROM averages WHERE test_id = ?
+        SELECT throughput, jitter_ms, packet_loss_iperf, packet_loss_ping, rtt_ms, duration FROM averages WHERE test_id = ?
     """, (test_id,)).fetchone()
-    return {"throughput": row[0], "jitter_ms": row[1], "packet_loss": row[2], "duration": row[3]}
+    return {"throughput": row[0], "jitter_ms": row[1], "packet_loss_iperf": row[2], "packet_loss_ping": row[3], "rtt_ms": row[4], "duration": row[5]}
