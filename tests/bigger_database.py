@@ -1,6 +1,16 @@
 import sqlite3
 
 
+def _ensure_column(conn, table_name, column_def):
+    column_name = column_def.split()[0]
+    existing = {
+        row[1]
+        for row in conn.execute("PRAGMA table_info({})".format(table_name))
+    }
+    if column_name not in existing:
+        conn.execute("ALTER TABLE {} ADD COLUMN {}".format(table_name, column_def))
+
+
 def get_conn():
     conn = sqlite3.connect('big_tests.db')
     conn.execute("""
@@ -28,6 +38,7 @@ def get_conn():
             throughput          REAL    NOT NULL,
             jitter_ms           REAL,
             packet_loss_iperf   REAL,
+            rtt_ms              REAL,
             duration            REAL    NOT NULL,
             FOREIGN KEY (test_id) REFERENCES tests(id)
         )
@@ -39,10 +50,13 @@ def get_conn():
             throughput          REAL    NOT NULL,
             jitter_ms           REAL,
             packet_loss_iperf   REAL,
+            rtt_ms              REAL,
             duration            REAL    NOT NULL,
             FOREIGN KEY (test_id) REFERENCES tests(id)
         )
     """)
+    _ensure_column(conn, "iterations", "rtt_ms REAL")
+    _ensure_column(conn, "averages", "rtt_ms REAL")
     conn.commit()
     return conn
 
@@ -73,22 +87,23 @@ def insert_test(conn, args):
     return cursor.lastrowid
 
 
-def insert_iteration(conn, test_id, iteration, throughput, jitter_ms, packet_loss_iperf, duration):
+def insert_iteration(conn, test_id, iteration, throughput, jitter_ms, packet_loss_iperf, duration, rtt_ms=None):
     conn.execute("""
-        INSERT INTO iterations (test_id, iteration, throughput, jitter_ms, packet_loss_iperf, duration)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (test_id, iteration, throughput, jitter_ms, packet_loss_iperf, duration))
+        INSERT INTO iterations (test_id, iteration, throughput, jitter_ms, packet_loss_iperf, duration, rtt_ms)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (test_id, iteration, throughput, jitter_ms, packet_loss_iperf, duration, rtt_ms))
     conn.commit()
 
 
 def insert_averages(conn, test_id):
     conn.execute("""
-        INSERT OR REPLACE INTO averages (test_id, throughput, jitter_ms, packet_loss_iperf, duration)
+         INSERT OR REPLACE INTO averages (test_id, throughput, jitter_ms, packet_loss_iperf, duration, rtt_ms)
         SELECT test_id,
                AVG(throughput),
                AVG(jitter_ms),
                AVG(packet_loss_iperf),
-               AVG(duration)
+             AVG(duration),
+             AVG(rtt_ms)
         FROM iterations
         WHERE test_id = ?
         GROUP BY test_id
@@ -98,7 +113,7 @@ def insert_averages(conn, test_id):
 
 def get_averages(conn, test_id):
     row = conn.execute("""
-        SELECT throughput, jitter_ms, packet_loss_iperf, duration
+        SELECT throughput, jitter_ms, packet_loss_iperf, duration, rtt_ms
         FROM averages
         WHERE test_id = ?
     """, (test_id,)).fetchone()
@@ -107,4 +122,5 @@ def get_averages(conn, test_id):
         "jitter_ms":         row[1],
         "packet_loss_iperf": row[2],
         "duration":          row[3],
+        "rtt_ms":            row[4],
     }

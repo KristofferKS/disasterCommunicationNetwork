@@ -14,12 +14,12 @@ import sys
 
 import iperf3_runner
 import bigger_database
-
+import ping_runner
 
 def run_iperf3(host, proto, pkt_size, total_bytes, bitrate, pacing_us, interval):
     extra = ["-l", str(pkt_size), "-n", str(total_bytes)]
     if proto == "udp":
-        extra += ["-u", "-b", str(bitrate)]
+        extra += ["-u", "-b", "10G"]
     if interval:
         extra += ["-i", str(interval)]
     print("Running iperf3 ({}) l={} n={} b={} pacing={}µs".format(
@@ -111,6 +111,9 @@ def main():
             args.test_name, test_id, args.iterations
         ))
 
+        ping_output = ping_runner.run_ping(args.host, extra_args=["-c", "4"])
+        rtt_ms = ping_runner.parse_rtt_avg(ping_output) if ping_output else None
+
         for i in range(args.iterations):
             print("  Iteration {}/{}...".format(i + 1, args.iterations))
 
@@ -132,7 +135,8 @@ def main():
                 stats["throughput"],
                 stats["jitter_ms"],
                 stats["packet_loss"],
-                stats["duration"]
+                stats["duration"],
+                rtt_ms
             )
 
         bigger_database.insert_averages(conn, test_id)
@@ -143,6 +147,7 @@ def main():
         ))
         print("  Jitter:     {:.3f} ms".format(avg['jitter_ms']))
         print("  Loss:       {:.2f}%".format(avg['packet_loss_iperf']))
+        print("  RTT:        {:.3f} ms".format(avg['rtt_ms']))
         print("  Duration:   {:.2f} s".format(avg['duration']))
 
     finally:
