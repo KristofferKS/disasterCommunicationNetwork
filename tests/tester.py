@@ -82,6 +82,7 @@ def main():
     parser.add_argument("-t", "--test_name",        type=str,   default="Test_tester")
     parser.add_argument("-e", "--environment",       type=str,   default="LoS")
     parser.add_argument("-d", "--distance",          type=float, default=10.0)
+    parser.add_argument("-H", "--height",            type=float, default=None, help="Height value")
     parser.add_argument("--host",                    type=str,   default="localhost")
     parser.add_argument("--proto",   choices=["udp", "tcp"],     default="udp")
     parser.add_argument("--pkt-size",  type=int,   default=16,   help="Packet size in bytes")

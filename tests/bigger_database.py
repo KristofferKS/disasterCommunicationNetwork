@@ -19,6 +19,7 @@ def get_conn():
             test_name           TEXT    NOT NULL,
             environment         TEXT    NOT NULL,
             distance            REAL    NOT NULL,
+            height              REAL,
             proto               TEXT    NOT NULL,
             packet_size         INTEGER NOT NULL,
             number_of_packets   INTEGER NOT NULL,
@@ -65,14 +66,15 @@ def insert_test(conn, args):
     cursor = conn.cursor()
     cursor.execute("""
         INSERT INTO tests (
-            test_name, environment, distance,
+            test_name, environment, distance, height,
             proto, packet_size, number_of_packets,
             pps, burst, min_gap, max_gap, min_burst, max_burst
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         args.test_name,
         args.environment,
         args.distance,
+        args.height,
         args.proto,
         args.pkt_size,
         args.pkts,
