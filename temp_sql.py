@@ -5,13 +5,13 @@ cur = con.cursor()
 
 
 
-cursor = cur.execute(
-"""
-SELECT DISTINCT distance FROM tests 
-WHERE environment = 'Urban'
-ORDER BY distance
-"""
-)
+#cursor = cur.execute(
+#"""
+#SELECT DISTINCT distance FROM tests 
+#WHERE environment = 'Urban'
+#ORDER BY distance
+#"""
+#)
 
 #cursor = cur.execute(
 #"""
@@ -22,8 +22,8 @@ ORDER BY distance
 #)
 
 
-for row in cursor:
-    print(row)
+#for row in cursor:
+#    print(row)
 
 
 
@@ -59,13 +59,13 @@ for row in cursor:
 #        (distance,)
 #    )
 
-#distance = 400
-#cursor = cur.execute(
-#    """
-#    update tests set test_name = ? where environment = 'LoS' and distance = ? and test_name = 'Test_05_12_1';
-#    """,
-#    (f'LoS Dock {distance}', distance)
-#)
+distance = 400
+cursor = cur.execute(
+    """
+    update tests set test_name = ? where environment = 'LoS' and test_name LIKE 'LoS Føtex%';
+    """,
+    (f'LoS Føtex',)
+)
 
 #cursor = cur.execute(
 #    """

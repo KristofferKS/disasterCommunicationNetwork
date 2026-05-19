@@ -1,6 +1,7 @@
 import subprocess
 import time
 
+
 def start_server(port: int = 5201):
     # Kill any existing iperf3 first
     subprocess.run(["sudo", "pkill", "iperf3"], check=False)
@@ -10,10 +11,17 @@ def start_server(port: int = 5201):
     time.sleep(1) # Give the server a moment to start
     return proc
 
-def run_client(server_ip, port: int = 5201, extra_args=[]):
-    args = ["iperf3", "-c", server_ip, "-p", str(port), "-J" , "-b", "10G"] + extra_args
-    val = subprocess.check_output(args, stderr=subprocess.DEVNULL).decode('utf-8').strip()
-    return val
+
+def run_client(server_ip, port: int = 5201, extra_args=None):
+    if extra_args is None:
+        extra_args = []
+    args = ["iperf3", "-c", server_ip, "-p", str(port), "-J"] + extra_args
+    try:
+        val = subprocess.check_output(args, stderr=subprocess.STDOUT).decode('utf-8').strip()
+        return val
+    except subprocess.CalledProcessError as exc:
+        output = exc.output.decode('utf-8', errors='replace').strip() if exc.output else ''
+        raise RuntimeError("iperf3 failed with exit code {}\n{}".format(exc.returncode, output))
 
 def stop_server(proc):
     proc.terminate()
